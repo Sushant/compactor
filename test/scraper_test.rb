@@ -166,6 +166,18 @@ class ScraperTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_raise_error_if_no_market_places_found
+    VCR.use_cassette("AmazonReportScraper/with_good_login/with_multiple_marketplaces/get_marketplaces") do
+      scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
+      Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect").returns([])
+      Mechanize::Page.any_instance.stubs(:search).with("#market_switch .merch-site-span").returns(nil)
+      Compactor::Amazon::ReportScraper.any_instance.stubs(:default_number_of_attempts).returns(1)
+      assert_raises Compactor::Amazon::NoMarketplacesError do
+        scraper.marketplaces
+      end
+    end
+  end
+
   def test_should_list_marketplaces_if_single
     VCR.use_cassette("AmazonReportScraper/with_good_login/with_single_marketplaces/get_marketplaces") do
       scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")

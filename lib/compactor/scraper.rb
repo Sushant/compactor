@@ -33,7 +33,8 @@ module Compactor
       end
 
       def marketplaces
-        marketplaces = filter_marketplaces(get_marketplaces)
+        marketplaces = wait_for_element { get_marketplaces } || []
+        marketplaces = filter_marketplaces(marketplaces)
         raise NoMarketplacesError if marketplaces.empty?
 
         marketplaces.map do |account_name, marketplace_id|
