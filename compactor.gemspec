@@ -18,11 +18,11 @@ Gem::Specification.new do |spec|
   spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "mechanize", "2.4"
+  spec.add_dependency "mechanize", "2.4"
 
   if RUBY_PLATFORM == "java"
-    spec.add_runtime_dependency "jruby-openssl", '0.7.3'
-    spec.add_runtime_dependency "nokogiri", ">= 1.5.0", "< 1.5.3"
+    spec.add_dependency "jruby-openssl", '0.7.3'
+    spec.add_dependency "nokogiri", ">= 1.5.0", "< 1.5.3"
   end
 
   spec.add_development_dependency "rake"
