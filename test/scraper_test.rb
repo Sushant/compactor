@@ -172,6 +172,18 @@ class ScraperTest < Test::Unit::TestCase
       Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect").returns([])
       Mechanize::Page.any_instance.stubs(:search).with("#market_switch .merch-site-span").returns(nil)
       Compactor::Amazon::ReportScraper.any_instance.stubs(:default_number_of_attempts).returns(1)
+
+      assert_raises Compactor::Amazon::MissingMarketplaceError do
+        scraper.marketplaces
+      end
+    end
+  end
+
+  def test_should_raise_an_error_if_correct_marketplaces_not_found
+    VCR.use_cassette("AmazonReportScraper/with_good_login/with_single_marketplaces/get_marketplaces") do
+      scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
+      scraper.stubs(:get_marketplaces).returns([["www.ballertron.com", nil]])
+
       assert_raises Compactor::Amazon::NoMarketplacesError do
         scraper.marketplaces
       end

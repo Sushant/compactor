@@ -2,18 +2,19 @@
 
 module Compactor
   module Amazon
-    class AddressParseFailure    < StandardError; end
-    class AuthenticationError    < StandardError; end
-    class LockedAccountError     < StandardError; end
-    class LoginFormNotFoundError < StandardError; end
-    class MissingReportButtons   < StandardError; end
-    class MissingRow             < StandardError; end
-    class MissingXmlReport       < StandardError; end
-    class NoMarketplacesError    < StandardError; end
-    class NotProAccountError     < StandardError; end
-    class ReportLoadingTimeout   < StandardError; end
-    class ReportTotalsMismatch   < StandardError; end
-    class UnknownReportType      < StandardError; end
+    class AddressParseFailure     < StandardError; end
+    class AuthenticationError     < StandardError; end
+    class LockedAccountError      < StandardError; end
+    class LoginFormNotFoundError  < StandardError; end
+    class MissingReportButtons    < StandardError; end
+    class MissingRow              < StandardError; end
+    class MissingMarketplaceError < StandardError; end
+    class MissingXmlReport        < StandardError; end
+    class NoMarketplacesError     < StandardError; end
+    class NotProAccountError      < StandardError; end
+    class ReportLoadingTimeout    < StandardError; end
+    class ReportTotalsMismatch    < StandardError; end
+    class UnknownReportType       < StandardError; end
 
     ATTEMPTS_BEFORE_GIVING_UP = 15 # give up after 20 minutes
     MARKETPLACE_HOMEPAGE      = "https://sellercentral.amazon.com/gp/homepage.html"
@@ -33,7 +34,9 @@ module Compactor
       end
 
       def marketplaces
-        marketplaces = wait_for_element { get_marketplaces } || []
+        marketplaces = wait_for_element { get_marketplaces }
+        raise MissingMarketplaceError if marketplaces.blank?
+
         marketplaces = filter_marketplaces(marketplaces)
         raise NoMarketplacesError if marketplaces.empty?
 
