@@ -1,4 +1,4 @@
-require 'rake'
+require "bundler/gem_tasks"
 require 'rake/testtask'
 
 desc 'Default: run unit tests.'
