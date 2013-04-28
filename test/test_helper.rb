@@ -1,3 +1,8 @@
+unless RUBY_PLATFORM == "java"
+  require 'coveralls'
+  Coveralls.wear!
+end
+
 require "bundler/setup"
 
 require "test/unit"
@@ -5,11 +10,6 @@ require "vcr"
 require "mechanize"
 require "compactor"
 require "mocha"
-
-unless RUBY_PLATFORM == "java"
-  require 'coveralls'
-  Coveralls.wear!
-end
 
 VCR.configure do |vcr|
   vcr.cassette_library_dir = 'test/compactor/fixtures/vcr_cassettes'
