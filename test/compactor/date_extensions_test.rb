@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 
 class DateExtensionsTest < Test::Unit::TestCase
   def test_parse_strings_separated_by_dashes

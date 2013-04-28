@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 
 class MechanizeExtensionsTest < Test::Unit::TestCase
   def test_should_raise_exception_if_selector_cannot_be_found
