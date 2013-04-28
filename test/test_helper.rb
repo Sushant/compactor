@@ -6,6 +6,11 @@ require "mechanize"
 require "compactor"
 require "mocha"
 
+unless RUBY_PLATFORM == "java"
+  require 'coveralls'
+  Coveralls.wear!
+end
+
 VCR.configure do |vcr|
   vcr.cassette_library_dir = 'test/fixtures/vcr_cassettes'
   vcr.hook_into :fakeweb
