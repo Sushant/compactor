@@ -22,9 +22,12 @@ Gem::Specification.new do |spec|
 
   if RUBY_PLATFORM == "java"
     spec.add_dependency "jruby-openssl", '0.7.3'
-    spec.add_dependency "nokogiri", ">= 1.5.0", "< 1.5.3"
   else
     spec.add_development_dependency "coveralls"
+  end
+
+  if RUBY_PLATFORM == "java" || RUBY_VERSION == "1.8.7"
+    spec.add_dependency "nokogiri", ">= 1.5.0", "< 1.5.3"
   end
 
   spec.add_development_dependency "rake"
