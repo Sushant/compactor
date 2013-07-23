@@ -10,6 +10,7 @@ require "vcr"
 require "mechanize"
 require "compactor"
 require "mocha"
+require "awesome_print"
 
 VCR.configure do |vcr|
   vcr.cassette_library_dir = 'test/compactor/fixtures/vcr_cassettes'

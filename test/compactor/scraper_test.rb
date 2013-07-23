@@ -39,7 +39,24 @@ class ScraperTest < Test::Unit::TestCase
   end
 
   def test_should_raise_error_with_bad_login
+    ["#message_error", ".messageboxerror"].each do |selector|
+      VCR.use_cassette("AmazonReportScraper/with_bad_login/raise_error") do
+        message_box = mock
+        Nokogiri::HTML::Document.any_instance.stubs(:css).with(selector).returns(message_box)
+        assert_raises Compactor::Amazon::AuthenticationError do
+          Compactor::Amazon::ReportScraper.new(:email => "bad@email.here", :password => "invalid")
+        end
+      end
+    end
+  end
+
+  def test_should_raise_error_for_unauthorized_seller
     VCR.use_cassette("AmazonReportScraper/with_bad_login/raise_error") do
+      message_box = mock
+      message_box.stubs(:text).returns('Sorry, you are not an authorized Seller Central user')
+      Nokogiri::HTML::Document.any_instance.stubs(:css).with('.tiny').returns(message_box)
+      Nokogiri::HTML::Document.any_instance.stubs(:css).with('#message_error').returns(nil)
+      Nokogiri::HTML::Document.any_instance.stubs(:css).with('.messageboxerror').returns(nil)
       assert_raises Compactor::Amazon::AuthenticationError do
         Compactor::Amazon::ReportScraper.new(:email => "bad@email.here", :password => "invalid")
       end
@@ -217,14 +234,6 @@ class ScraperTest < Test::Unit::TestCase
       reports_2 = scraper.reports("4/1/2012", "4/5/2012")
       assert_equal(720, ( reports_2[:xml].first =~ /<AmazonOrderID>.*<\/AmazonOrderID>/ ) )
       assert_equal("<AmazonOrderID>105-3231361-4893023</AmazonOrderID>", reports_2[:xml].first[720,50])
-    end
-  end
-
-  def test_should_raise_error_with_bad_login
-    VCR.use_cassette("AmazonReportScraper/with_bad_login/raise_error") do
-      assert_raises Compactor::Amazon::AuthenticationError do
-        scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
-      end
     end
   end
 

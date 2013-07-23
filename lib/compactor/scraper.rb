@@ -348,6 +348,7 @@ module Compactor
       end
 
       def bad_login?
+        !@mechanize.page.parser.css("#message_error").blank? ||
         !@mechanize.page.parser.css(".messageboxerror").blank? ||
           @mechanize.page.parser.css('.tiny').text.include?('Sorry, you are not an authorized Seller Central user')
       end
