@@ -51,7 +51,7 @@ module Compactor
       def get_marketplaces
         @mechanize.get MARKETPLACE_HOMEPAGE
 
-        marketplace_selector = @mechanize.page.search("#marketplaceSelect").first
+        marketplace_selector = @mechanize.page.search("#marketplaceSelect, #sc-mkt-switcher-select").first
         if marketplace_selector
           result = []
           marketplace_selector.search("option").each do |ele|
@@ -62,7 +62,7 @@ module Compactor
           return result
         end
 
-        marketplace_name = @mechanize.page.search("#market_switch .merch-site-span")
+        marketplace_name = @mechanize.page.search("#market_switch .merch-site-span, #sc-mkt-switcher-form .sc-mkt-switcher-txt")
         if marketplace_name
           return [ [ marketplace_name.text.strip, nil ] ]
         end

@@ -186,8 +186,8 @@ class ScraperTest < Test::Unit::TestCase
   def test_should_raise_error_if_no_market_places_found
     VCR.use_cassette("AmazonReportScraper/with_good_login/with_multiple_marketplaces/get_marketplaces") do
       scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
-      Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect").returns([])
-      Mechanize::Page.any_instance.stubs(:search).with("#market_switch .merch-site-span").returns(nil)
+      Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect, #sc-mkt-switcher-select").returns([])
+      Mechanize::Page.any_instance.stubs(:search).with("#market_switch .merch-site-span, #sc-mkt-switcher-form .sc-mkt-switcher-txt").returns(nil)
       Compactor::Amazon::ReportScraper.any_instance.stubs(:default_number_of_attempts).returns(1)
 
       assert_raises Compactor::Amazon::MissingMarketplaceError do
@@ -215,10 +215,43 @@ class ScraperTest < Test::Unit::TestCase
     end
   end
 
+  def test_should_list_marketplaces_if_single_and_new_site_layout
+    VCR.use_cassette("AmazonReportScraper/with_good_login/with_single_marketplaces/get_marketplaces") do
+      mkt_switcher = mock
+      mkt_switcher.stubs(:text).returns("www.amazon.com")
+      scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
+      Mechanize::Page.any_instance.stubs(:search).with("#market_switch .merch-site-span, #sc-mkt-switcher-form .sc-mkt-switcher-txt").returns(mkt_switcher)
+      Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect, #sc-mkt-switcher-select").returns([])
+      expected_marketplaces = [["www.amazon.com", nil]]
+      assert_equal expected_marketplaces, scraper.get_marketplaces.sort
+    end
+  end  
+
   def test_should_list_marketplaces_if_several
     VCR.use_cassette("AmazonReportScraper/with_good_login/with_multiple_marketplaces/get_marketplaces") do
       scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
       expected_marketplaces = [["Your Checkout Website", "AZ4B0ZS3LGLX"], ["Your Checkout Website (Sandbox)", "A2SMC08ZTYKXKX"], ["www.amazon.com", "ATVPDKIKX0DER"]]
+      assert_equal expected_marketplaces, scraper.get_marketplaces.sort
+    end
+  end
+
+  def test_should_list_marketplaces_if_several_and_new_site_layout
+    VCR.use_cassette("AmazonReportScraper/with_good_login/with_multiple_marketplaces/get_marketplaces") do
+      scraper = Compactor::Amazon::ReportScraper.new(:email => "far@far.away", :password => "test")
+      mock_selector = mock
+      mock_first_selector = mock
+      mock_selector.stubs(:first).returns(mock_first_selector)
+
+      expected_marketplaces = [["Your Checkout Website", "AZ4B0ZS3LGLX"], ["Your Checkout Website (Sandbox)", "A2SMC08ZTYKXKX"], ["www.amazon.com", "ATVPDKIKX0DER"]]
+      mock_options = expected_marketplaces.map do |text, value|
+        mock_option = mock
+        mock_option.stubs(:text).returns(text)
+        mock_option.stubs(:[]).with('value').returns(value)
+        mock_option
+      end 
+
+      mock_first_selector.stubs(:search).with('option').returns(mock_options)
+      Mechanize::Page.any_instance.stubs(:search).with("#marketplaceSelect, #sc-mkt-switcher-select").returns(mock_selector)
       assert_equal expected_marketplaces, scraper.get_marketplaces.sort
     end
   end
